@@ -143,6 +143,10 @@ def login_with_cookie(driver):
             "value": "35d8c9f913f58ae06c1ea764253c519f",
         }
     )
+    
+    driver.add_cookie(
+        {"domain": ".www.tiktok.com", "name": "tiktok_webapp_theme", "value": "light"}
+    )
     driver.add_cookie(
         {
             "domain": ".www.tiktok.com",

@@ -145,6 +145,30 @@ def login_with_cookie(driver):
     )
     driver.add_cookie(
         {
+            "domain": ".tiktok.com",
+            "name": "sessionid_ss",
+            "value": "35d8c9f913f58ae06c1ea764253c519f",
+        }
+    )
+    driver.add_cookie(
+        {
+            "domain": ".tiktok.com",
+            "name": "sid_guard",
+            "value": "35d8c9f913f58ae06c1ea764253c519f%7C1729825688%7C15552000%7CWed%2C+23-Apr-2025+03%3A08%3A08+GMT",
+        }
+    )
+    driver.add_cookie(
+        {
+            "domain": ".tiktok.com",
+            "name": "sid_tt",
+            "value": "35d8c9f913f58ae06c1ea764253c519f",
+        }
+    )
+    driver.add_cookie(
+        {"domain": ".www.tiktok.com", "name": "tiktok_webapp_theme", "value": "light"}
+    )
+    driver.add_cookie(
+        {
             "domain": ".www.tiktok.com",
             "name": "tiktok_webapp_theme_source",
             "value": "auto",
