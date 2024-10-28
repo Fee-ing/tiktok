@@ -14,13 +14,16 @@ import re
 import random
 
 
-username = "user7399076925301"
-password = "@K4axNj6w@qo"
-search_keywords = ["熊猫"]
-comment_keywords = ["panda", "cute"]
+# username = "user7399076925301"
+# password = "@K4axNj6w@qo"
+username = "user5302058888804"
+password = "@K4aEsi@D5wZ"
 
-# username = 'user5302058888804'
-# password = '@K4aEsi@D5wZ'
+test_link = "https://www.tiktok.com/@zajzkshk0/video/7396953505753337096?is_from_webapp=1&web_id=7430629140195788296"
+
+test_reply = "lol"
+
+comment_keywords = ["可爱", "cute"]
 
 
 def kill_chrome_processes():
@@ -28,7 +31,7 @@ def kill_chrome_processes():
     for line in processes.split("\n"):
         if "chrome" in line or "chromedriver" in line:
             pid = int(line.split()[1])
-            print(f"Killing process {pid}")
+            print(f"杀掉冲突进程 {pid}")
             os.kill(pid, signal.SIGKILL)
 
 
@@ -44,40 +47,21 @@ def _sleep(min, max):
     sleep(random_number)
 
 
-# 滚动到底部
-def scroll_to_bottom(driver, scrollable_element):
-    # 滚动到底部
-    driver.execute_script(
-        "arguments[0].scrollTop = arguments[0].scrollHeight;", scrollable_element
-    )
-
-    # 等待页面加载
-    _sleep(10, 20)
-
-    # 更新当前滚动位置
-    current_scroll_top = driver.execute_script(
-        "return arguments[0].scrollTop;", scrollable_element
-    )
-
-    # 获取最大滚动位置
-    max_scroll_height = driver.execute_script(
-        "return arguments[0].scrollHeight;", scrollable_element
-    )
-
-    # 获取元素的高度
-    element_client_height = driver.execute_script(
-        "return arguments[0].clientHeight;", scrollable_element
-    )
-
-    # 判断是否滚动到底部
-    return current_scroll_top + element_client_height >= max_scroll_height
+# 获取特定节点
+def get_nodes_by_classname(driver, tag_name, class_name):
+    all_elements = driver.find_elements(By.TAG_NAME, tag_name)
+    list = []
+    for element in all_elements:
+        if class_name in element.get_attribute("class"):
+            list.append(element)
+    return list
 
 
 def login(driver, username=None, password=None):
     if not username or not password:
         username, password = prompt_email_password()
 
-    driver.get("https://www.tiktok.com/explore")
+    driver.get("https://www.tiktok.com")
     WebDriverWait(driver, 60).until(
         EC.presence_of_element_located((By.ID, "header-login-button"))
     )
@@ -148,7 +132,7 @@ def login_with_cookie(driver):
         {
             "domain": ".tiktok.com",
             "name": "sessionid",
-            "value": "35d8c9f913f58ae06c1ea764253c519f",
+            "value": "9a325c234d00d7065b3a83f36b84203a",
         }
     )
     driver.add_cookie(
@@ -165,80 +149,15 @@ def login_with_cookie(driver):
         {
             "domain": ".tiktok.com",
             "name": "tt-target-idc-sign",
-            "value": "L1PzuJzCALub5oQTM8rYOoQZ16WJEM4oAc5eycVeFAeDL-tEnX5DMbK4FVl-orfNJxUM5t7LPo311j1dywDKls8yVw0IpLBGHzk1FfIsRZXEmiFXt_D-LYr_A1T-doHy3gr7cHZMonWKRMiLKNVxML-8fdnzCkU16rqaLmawVV1snlaDa8_kuYDiMXTkDIk0JL9BkNtr5Srv3fGiwTuRWvfYrexjQ7y6GChk6yKd3_tXb2bdlh3Jkc3uWsIahVeAA4QMNFQtnWsNZNpYgMSarsiE55LRG5pECVw72qLX0HcJzTj5diwWcWkXZ4Dxw5lO2cAGQNSK1QB0Xy6B1rw2fwll8QULMt2I3X3jhrr9FW81W0wZt7BAX_YwkiXo_2VsFas75Lch1rhzOMgEJS0GYpnz9tPm7F1F7u-RP8SG1zrulzK0E4VGDfgznuAkNBdaM7K1JMQxQarTPHW6gAJ6rRWE5ADoWFl8RQtZ_9QOJGvWBh3r0oOo2KRJdKK7OnqZ",
+            "value": "H0ovO3gQmtV5LO2dMZbtwgb18cg8kLChZiaN7bO0zQ0Rq0x4_9VDoffYagLHWHWyJ_ONB7d9IPrqQiS8qjp3vnRRM2QtpyBmvg5i1C_SCWRZ2F5iUKxe5D5EO7WLLJuUC9iQ0RsmzzYO-va-tfdjYRvKJB59wid2AJRdzDf9YFDLIOpHJvGHwGMSKvpEw8ELH9gaGQLlhyqZ6uDELF8U6nSPJ6xyjd-6v4wLYwHjNWzhCFtLs9BuL4mRXk3_l8yrQhJlTF5CDRRwxD2v88zaIglRcDsNWaY1IoljCdQ2x7bvJzba6fIaKdzdp8nfls6WOnUP_sLr54BC3o2QsBTPKq5u4I5GQ-Xz2QJHpRFZmDDcCQOY2RErriYCDcQS9P3BwcAxKk7wFpdLOfOzm4vhdH-FfBgAM9YHyss1vKywX_wASm9gqb-2IVwcnbfKJZc0YgJZe7JfN4oG0BGstubDnLsMwCF1kuxagT_Hc6O5m7o3gbzW0wM7UrKgBHAnKZzj",
         }
     )
 
     key = "user_session"
-    value = '{"uid":"7405946633051522091","lastUpdated":"1729825697484"}'
+    value = '{"uid":"7405959088293200939","lastUpdated":"1730082466605"}'
     driver.execute_script(f"window.sessionStorage.setItem('{key}', '{value}')")
 
     _sleep(2, 4)
-
-
-def search(driver, keyword):
-    driver.get("https://www.tiktok.com/explore")
-    WebDriverWait(driver, 300).until(
-        EC.presence_of_element_located(
-            (By.CSS_SELECTOR, "#app-header div#header-more-menu-icon")
-        )
-    )
-
-    _sleep(5, 10)
-
-    # 输入搜索关键词
-    print(f"输入关键词：{keyword}")
-    form_elem = driver.find_element(By.CSS_SELECTOR, "#app-header form.search-input")
-    input_elem = form_elem.find_element(By.XPATH, ".//input[@type='search']")
-    input_elem.clear()
-    input_elem.send_keys(keyword)
-
-    _sleep(5, 10)
-
-    # 提交搜索
-    print("开始搜索")
-    submit_button = form_elem.find_element(By.XPATH, ".//button[@type='submit']")
-    submit_button.click()
-
-    WebDriverWait(driver, 60).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "#search-tabs"))
-    )
-
-    _sleep(5, 10)
-
-    # 切换到视频筛选
-    print("切换到视频模式")
-    video_tab = driver.find_element(By.ID, "tabs-0-tab-search_video")
-    video_tab.click()
-
-    ids_list = []
-    search_results = WebDriverWait(driver, 60).until(
-        EC.presence_of_all_elements_located(
-            (
-                By.XPATH,
-                ".//div[@data-e2e='search_video-item']",
-            )
-        )
-    )
-
-    _sleep(5, 10)
-
-    print("筛选搜索结果")
-    if len(search_results) >= 15:
-        search_results = search_results[-15:]
-
-    for result_item in search_results:
-        url = result_item.find_element(By.TAG_NAME, "a").get_attribute("href")
-        pattern = r"https://www\.tiktok\.com/.*?video/(.*?)$"
-        match = re.search(pattern, url)
-
-        if match:
-            video_id = match.group(1)
-            if any(item == video_id for item in ids_list) == False:
-                ids_list.append(video_id)
-                result_item.click()
-                comment(driver, type=2, reply="hhh")
-                break
 
 
 # 判断评论中是否有关键词
@@ -249,32 +168,52 @@ def is_comment_have_keywords(text):
     return False
 
 
-# 递归式滚动匹配评论
-def loop_comment_in_type2(driver, list=[], reply="lol", is_first_loop=False):
-    comment_list = WebDriverWait(driver, 600).until(
+# 获取点击回复后的输入框节点
+def get_reply_input(driver):
+    list = WebDriverWait(driver, 60).until(
         EC.presence_of_all_elements_located(
             (
-                By.CSS_SELECTOR,
-                ".css-ulyotp-DivCommentContentContainer",
+                By.XPATH,
+                ".//div[@contenteditable='true']",
             )
         )
     )
+    if len(list) > 1:
+        return list[1]
+    else:
+        return get_reply_input(driver)
+
+
+# 递归式滚动匹配评论
+def loop_comment(driver, id_list=[], reply_text="hhh"):
+    _sleep(10, 20)
+
+    comment_list = get_nodes_by_classname(driver, "div", "DivCommentObjectWrapper")
+
     if len(comment_list) == 0:
         print("当前视频暂无评论")
         return
-    if len(comment_list) >= 20:
-        comment_list = comment_list[-20:]
+    
+    last_id = None
+    if len(id_list) > 0:
+        last_id = id_list[len(id_list) - 1]
+
+    if len(comment_list) >= 40:
+        comment_list = comment_list[-40:]
 
     for comment_item in comment_list:
-        comment_id = comment_item.get_attribute("id")
-        bol = comment_id in list
-        if bol == False:
-            list.append(comment_id)
+        # 获取评论id
+        comment_id = comment_item.find_element(By.TAG_NAME, "a").get_attribute("href")
+        pattern = r'https?://([^/]+)'
+        comment_id = re.sub(pattern, '', comment_id).strip('/')
+        if (comment_id in id_list) == False and (username in comment_id) == False:
+            id_list.append(comment_id)
             try:
                 p_elem = comment_item.find_element(
-                    By.XPATH, ".//p[@data-e2e='comment-level-1']"
+                    By.XPATH, ".//span[@data-e2e='comment-level-1']"
                 )
                 text = p_elem.find_element(By.TAG_NAME, "span").text
+                # 判断评论中是否包含关键词
                 bol = is_comment_have_keywords(text)
                 if bol == True:
                     # 点击回复
@@ -283,105 +222,76 @@ def loop_comment_in_type2(driver, list=[], reply="lol", is_first_loop=False):
                         By.XPATH, ".//span[@data-e2e='comment-reply-1']"
                     )
                     reply_btn.click()
+
                     _sleep(5, 10)
 
-                    WebDriverWait(driver, 60).until(
-                        EC.presence_of_all_elements_located(
-                            (
-                                By.CLASS_NAME,
-                                "public-DraftEditorPlaceholder-inner",
-                            )
-                        )
+                    # 输入文本
+                    print(f"输入评论内容：{reply_text}")
+                    comment_input = get_reply_input(driver)
+                    comment_input.send_keys(reply_text)
+
+                    _sleep(5, 10)
+
+                    # 发布回复
+                    print("发布回复")
+                    comment_submits = driver.find_elements(
+                        By.XPATH, ".//div[@data-e2e='comment-post']"
                     )
+                    comment_submit = comment_submits[1]
+                    comment_submit.click()
 
-                    try:
-                        # 输入文本
-                        print(f"输入评论内容：{reply}")
-                        comment_inputs = driver.find_elements(
-                            By.XPATH, ".//div[@contenteditable='true']"
-                        )
-                        comment_input = comment_inputs[0]
-                        comment_input.send_keys(reply)
-                        _sleep(5, 10)
-                        # 发布回复
-                        print("发布回复")
-                        comment_submits = driver.find_elements(
-                            By.XPATH, ".//div[@data-e2e='comment-post']"
-                        )
-                        comment_submit = comment_submits[0]
-                        comment_submit.click()
-                        _sleep(5, 10)
+                    _sleep(5, 10)
 
-                    except Exception as e:
-                        pass
             except Exception as e:
                 pass
 
-    container_elem = driver.find_element(
-        By.XPATH, ".//div[@data-e2e='search-comment-container']"
-    )
-    scroll_elem = container_elem.find_element(By.TAG_NAME, "div")
-    bol = scroll_to_bottom(driver, scroll_elem)
-    if bol == False:
-        if is_first_loop:
-            _sleep(10, 20)
-        list = list[-40:]
-        print("滚动加载评论")
-        loop_comment_in_type2(driver, list, is_first_loop=False)
+    if last_id == id_list[len(id_list) - 1]:
+        print("评论加载完毕")
+    else:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        id_list = id_list[-40:]
+        loop_comment(driver, id_list=id_list, reply_text=reply_text)
 
 
-def comment(driver, type=1, reply="lol"):
+def comment(driver, reply_link="", reply_type=1, reply_text="lol"):
+    print("打开视频链接")
+    driver.get(reply_link)
+
     WebDriverWait(driver, 300).until(
-        EC.presence_of_element_located(
-            (By.XPATH, ".//div[@data-e2e='search-comment-container']")
-        )
+        EC.presence_of_element_located((By.ID, "header-more-menu-icon"))
     )
 
-    if type == 1:
+    _sleep(30, 60)
+
+    if reply_type == 1:
         # 直接回复
-        # 等待评论加载完成
-        WebDriverWait(driver, 300).until(
-            EC.presence_of_all_elements_located(
-                (By.CLASS_NAME, "public-DraftEditorPlaceholder-inner")
-            )
-        )
+        print("模式一：直接回复")
+
         _sleep(5, 10)
 
         # 输入评论
-        print(f"输入评论内容：{reply}")
-        comment_inputs = driver.find_element(
+        print(f"输入评论内容：{reply_text}")
+        comment_input = driver.find_element(
             By.XPATH, ".//div[@contenteditable='true']"
         )
-        length = len(comment_inputs)
-        comment_input = comment_inputs[length - 1]
-        comment_input.send_keys(reply)
+        comment_input.send_keys(reply_text)
 
         _sleep(5, 10)
 
         # 提交评论
         print("发布评论")
-        comment_submits = driver.find_element(
+        comment_submit = driver.find_element(
             By.XPATH, ".//div[@data-e2e='comment-post']"
         )
-        length = len(comment_submits)
-        comment_submit = comment_submits[length - 1]
         comment_submit.click()
 
         _sleep(5, 10)
 
-        # 关闭视频详情窗口
-        print("关闭视频详情窗口")
-        close_button = driver.find_element(
-            By.XPATH, ".//button[@data-e2e='browse-close']"
-        )
-        close_button.click()
-
-        _sleep(5, 10)
-
-    elif type == 2:
-        print("回复评论")
+    elif reply_type == 2:
         # 回复评论
-        loop_comment_in_type2(driver, list=[], reply=reply, is_first_loop=True)
+        print("模式二：回复评论")
+
+        loop_comment(driver, id_list=[], reply_text=reply_text)
 
 
 def main():
@@ -400,16 +310,18 @@ def main():
         # 创建WebDriver实例
         driver = webdriver.Chrome(service=service, options=chrome_options)
 
-        # is_login_success = login(driver, username, password)
-        # if (is_login_success == False):
-        #     return
+        is_login_success = login(driver, username, password)
+        if (is_login_success == False):
+            return
 
-        login_with_cookie(driver)
+        # login_with_cookie(driver)
 
-        for word in search_keywords:
-            search(driver, word)
+
+        comment(driver, reply_link=test_link, reply_type=2, reply_text=test_reply)
+
 
     finally:
+        print("运行结束")
         if driver is not None:
             driver.quit()
 
