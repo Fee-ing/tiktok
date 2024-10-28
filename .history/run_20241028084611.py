@@ -37,38 +37,28 @@ def prompt_email_password():
     p = getpass.getpass(prompt="密码: ")
     return (u, p)
 
-
 def _sleep(min, max):
     random_number = random.randint(min, max)
     print(f"随机等待{random_number}秒")
     sleep(random_number)
 
-
 # 滚动到底部
 def scroll_to_bottom(driver, scrollable_element):
     # 滚动到底部
-    driver.execute_script(
-        "arguments[0].scrollTop = arguments[0].scrollHeight;", scrollable_element
-    )
-
+    driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", scrollable_element)
+    
     # 等待页面加载
     _sleep(10, 20)
-
+    
     # 更新当前滚动位置
-    current_scroll_top = driver.execute_script(
-        "return arguments[0].scrollTop;", scrollable_element
-    )
+    current_scroll_top = driver.execute_script("return arguments[0].scrollTop;", scrollable_element)
 
     # 获取最大滚动位置
-    max_scroll_height = driver.execute_script(
-        "return arguments[0].scrollHeight;", scrollable_element
-    )
+    max_scroll_height = driver.execute_script("return arguments[0].scrollHeight;", scrollable_element)
 
     # 获取元素的高度
-    element_client_height = driver.execute_script(
-        "return arguments[0].clientHeight;", scrollable_element
-    )
-
+    element_client_height = driver.execute_script("return arguments[0].clientHeight;", scrollable_element)
+    
     # 判断是否滚动到底部
     return current_scroll_top + element_client_height >= max_scroll_height
 
@@ -110,6 +100,7 @@ def login(driver, username=None, password=None):
     a_elem.click()
     _sleep(5, 10)
 
+
     # 输入邮箱、密码
     print("输入账户、密码")
     form_elem = driver.find_element(By.CSS_SELECTOR, "#loginContainer form")
@@ -144,6 +135,7 @@ def login(driver, username=None, password=None):
 def login_with_cookie(driver):
     driver.get("https://www.tiktok.com/explore")
 
+    
     driver.add_cookie(
         {
             "domain": ".tiktok.com",
@@ -268,7 +260,7 @@ def loop_comment_in_type2(driver, list=[], reply="lol", is_first_loop=False):
     for comment_item in comment_list:
         comment_id = comment_item.get_attribute("id")
         bol = comment_id in list
-        if bol == False:
+        if (bol == False):
             list.append(comment_id)
             try:
                 p_elem = comment_item.find_element(
@@ -316,10 +308,8 @@ def loop_comment_in_type2(driver, list=[], reply="lol", is_first_loop=False):
                         pass
             except Exception as e:
                 pass
-
-    container_elem = driver.find_element(
-        By.XPATH, ".//div[@data-e2e='search-comment-container']"
-    )
+            
+    container_elem = driver.find_element(By.XPATH, ".//div[@data-e2e='search-comment-container']")
     scroll_elem = container_elem.find_element(By.TAG_NAME, "div")
     bol = scroll_to_bottom(driver, scroll_elem)
     if bol == False:

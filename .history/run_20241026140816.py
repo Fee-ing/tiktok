@@ -152,13 +152,6 @@ def login_with_cookie(driver):
         }
     )
     driver.add_cookie(
-        {
-            "domain": ".www.tiktok.com",
-            "name": "tiktok_webapp_theme_source",
-            "value": "auto",
-        }
-    )
-    driver.add_cookie(
         {"domain": ".tiktok.com", "name": "tt-target-idc", "value": "useast5"}
     )
     driver.add_cookie(
