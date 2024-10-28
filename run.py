@@ -14,16 +14,16 @@ import re
 import random
 
 
+test_link = "https://www.tiktok.com/@ipanda365/video/7232677631337024769?is_from_webapp=1&web_id=7430629140195788296"
+
+test_reply = "I can watch it all day!"
+
+comment_keywords = ["panda", "cute", "Kung Fu", "kungfu"]
+
 # username = "user7399076925301"
 # password = "@K4axNj6w@qo"
 username = "user5302058888804"
 password = "@K4aEsi@D5wZ"
-
-test_link = "https://www.tiktok.com/@zajzkshk0/video/7396953505753337096?is_from_webapp=1&web_id=7430629140195788296"
-
-test_reply = "lol"
-
-comment_keywords = ["可爱", "cute"]
 
 
 def kill_chrome_processes():
@@ -35,7 +35,7 @@ def kill_chrome_processes():
             os.kill(pid, signal.SIGKILL)
 
 
-def prompt_email_password():
+def prompt_username_password():
     u = input("账号: ")
     p = getpass.getpass(prompt="密码: ")
     return (u, p)
@@ -46,6 +46,10 @@ def _sleep(min, max):
     print(f"随机等待{random_number}秒")
     sleep(random_number)
 
+
+def extract_digits(s):
+    # 使用正则表达式匹配所有的数字
+    return re.findall(r'\d+', s)
 
 # 获取特定节点
 def get_nodes_by_classname(driver, tag_name, class_name):
@@ -59,7 +63,7 @@ def get_nodes_by_classname(driver, tag_name, class_name):
 
 def login(driver, username=None, password=None):
     if not username or not password:
-        username, password = prompt_email_password()
+        username, password = prompt_username_password()
 
     driver.get("https://www.tiktok.com")
     WebDriverWait(driver, 60).until(
@@ -184,16 +188,16 @@ def get_reply_input(driver):
         return get_reply_input(driver)
 
 
-# 递归式滚动匹配评论
-def loop_comment(driver, id_list=[], reply_text="hhh"):
-    _sleep(10, 20)
+# 滚动加载评论
+def scroll_comment(driver, reply_type="2", reply_text="hhh", id_list=[]):
+    _sleep(30, 60)
 
     comment_list = get_nodes_by_classname(driver, "div", "DivCommentObjectWrapper")
 
     if len(comment_list) == 0:
         print("当前视频暂无评论")
         return
-    
+
     last_id = None
     if len(id_list) > 0:
         last_id = id_list[len(id_list) - 1]
@@ -204,13 +208,125 @@ def loop_comment(driver, id_list=[], reply_text="hhh"):
     for comment_item in comment_list:
         # 获取评论id
         comment_id = comment_item.find_element(By.TAG_NAME, "a").get_attribute("href")
-        pattern = r'https?://([^/]+)'
-        comment_id = re.sub(pattern, '', comment_id).strip('/')
+        pattern = r"https?://([^/]+)"
+        comment_id = re.sub(pattern, "", comment_id).strip("/")
         if (comment_id in id_list) == False and (username in comment_id) == False:
             id_list.append(comment_id)
+
+            if "2" in reply_type:
+                try:
+                    p_elem = comment_item.find_element(
+                        By.XPATH, ".//span[@data-e2e='comment-level-1']"
+                    )
+                    text = p_elem.find_element(By.TAG_NAME, "span").text
+                    # 判断评论中是否包含关键词
+                    bol = is_comment_have_keywords(text)
+                    if bol == True:
+                        # 点击回复
+                        print("点击回复")
+                        reply_btn = comment_item.find_element(
+                            By.XPATH, ".//span[@data-e2e='comment-reply-1']"
+                        )
+                        reply_btn.click()
+
+                        _sleep(5, 10)
+
+                        # 输入文本
+                        print(f"输入评论内容：{reply_text}")
+                        comment_input = comment_item.find_element(By.XPATH, ".//div[@contenteditable='true']")
+                        comment_input.send_keys(reply_text)
+
+                        _sleep(5, 10)
+
+                        # 发布回复
+                        print("发布回复")
+                        comment_submit = comment_item.find_element(
+                            By.XPATH, ".//div[@data-e2e='comment-post']"
+                        )
+                        comment_submit.click()
+
+                        _sleep(10, 20)
+
+                except Exception as e:
+                    pass
+
+            if "3" in reply_type:
+                reply_comments_of_comment(comment_item, reply_text=reply_text)
+
+    if last_id == id_list[len(id_list) - 1]:
+        print("评论加载完毕")
+    else:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        id_list = id_list[-40:]
+        scroll_comment(
+            driver, reply_type=reply_type, reply_text=reply_text, id_list=id_list
+        )
+
+
+# 加载评论的评论
+def expand_comments_of_comment(driver, num=0):
+    list = get_nodes_by_classname(driver, "div", "DivViewRepliesContainer")
+
+    if len(list) == 0:
+        return
+    
+    elif len(list) == 1:
+        print("展开评论")
+        text = list[0].find_element(By.TAG_NAME, "span").text
+        if any(char.isdigit() for char in text):
+            # 避免打不开最后一条评论而陷入死循环
+            arr = extract_digits(text)
+            _num = int(arr[0])
+            if _num == 1 and num == 1:
+                return
+            else:
+                num = _num
+                list[0].click()
+                _sleep(20, 40)
+        else:
+            return
+    
+    elif len(list) == 2:
+        print("展开评论")
+        for item in list:
+            text = item.find_element(By.TAG_NAME, "span").text
+            if any(char.isdigit() for char in text):
+                # 避免打不开最后一条评论而陷入死循环
+                arr = extract_digits(text)
+                _num = int(arr[0])
+                if _num == 1 and num == 1:
+                    return
+                else:
+                    num = _num
+                    item.click()
+                    _sleep(20, 40)
+                    break
+
+    expand_comments_of_comment(driver, num=num)
+
+
+# 回复评论的评论
+def reply_comments_of_comment(driver, reply_text="hhh"):
+    list = get_nodes_by_classname(driver, "div", "DivReplyContainer")
+    
+    if len(list) == 0:
+        print("该评论无回复")
+        return
+
+    reply_container = list[0]
+    expand_comments_of_comment(reply_container)
+
+    comment_list = get_nodes_by_classname(reply_container, "div", "DivCommentItemWrapper")
+    
+    for comment_item in comment_list:
+        # 获取评论id
+        comment_id = comment_item.find_element(By.TAG_NAME, "a").get_attribute("href")
+        pattern = r"https?://([^/]+)"
+        comment_id = re.sub(pattern, "", comment_id).strip("/")
+        if (username in comment_id) == False:
             try:
                 p_elem = comment_item.find_element(
-                    By.XPATH, ".//span[@data-e2e='comment-level-1']"
+                    By.XPATH, ".//span[@data-e2e='comment-level-2']"
                 )
                 text = p_elem.find_element(By.TAG_NAME, "span").text
                 # 判断评论中是否包含关键词
@@ -219,7 +335,7 @@ def loop_comment(driver, id_list=[], reply_text="hhh"):
                     # 点击回复
                     print("点击回复")
                     reply_btn = comment_item.find_element(
-                        By.XPATH, ".//span[@data-e2e='comment-reply-1']"
+                        By.XPATH, ".//span[@data-e2e='comment-reply-2']"
                     )
                     reply_btn.click()
 
@@ -227,33 +343,25 @@ def loop_comment(driver, id_list=[], reply_text="hhh"):
 
                     # 输入文本
                     print(f"输入评论内容：{reply_text}")
-                    comment_input = get_reply_input(driver)
+                    comment_input = reply_container.find_element(By.XPATH, ".//div[@contenteditable='true']")
                     comment_input.send_keys(reply_text)
 
                     _sleep(5, 10)
 
                     # 发布回复
                     print("发布回复")
-                    comment_submits = driver.find_elements(
+                    comment_submit = reply_container.find_element(
                         By.XPATH, ".//div[@data-e2e='comment-post']"
                     )
-                    comment_submit = comment_submits[1]
                     comment_submit.click()
 
-                    _sleep(5, 10)
+                    _sleep(10, 20)
 
             except Exception as e:
                 pass
 
-    if last_id == id_list[len(id_list) - 1]:
-        print("评论加载完毕")
-    else:
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        id_list = id_list[-40:]
-        loop_comment(driver, id_list=id_list, reply_text=reply_text)
-
-
-def comment(driver, reply_link="", reply_type=1, reply_text="lol"):
+# 1为自己发布评论，2为回复评论，3为回复评论的评论
+def comment(driver, reply_link="", reply_type="1", reply_text="lol"):
     print("打开视频链接")
     driver.get(reply_link)
 
@@ -261,9 +369,7 @@ def comment(driver, reply_link="", reply_type=1, reply_text="lol"):
         EC.presence_of_element_located((By.ID, "header-more-menu-icon"))
     )
 
-    _sleep(30, 60)
-
-    if reply_type == 1:
+    if "1" in reply_type:
         # 直接回复
         print("模式一：直接回复")
 
@@ -271,9 +377,7 @@ def comment(driver, reply_link="", reply_type=1, reply_text="lol"):
 
         # 输入评论
         print(f"输入评论内容：{reply_text}")
-        comment_input = driver.find_element(
-            By.XPATH, ".//div[@contenteditable='true']"
-        )
+        comment_input = driver.find_element(By.XPATH, ".//div[@contenteditable='true']")
         comment_input.send_keys(reply_text)
 
         _sleep(5, 10)
@@ -287,11 +391,16 @@ def comment(driver, reply_link="", reply_type=1, reply_text="lol"):
 
         _sleep(5, 10)
 
-    elif reply_type == 2:
-        # 回复评论
-        print("模式二：回复评论")
+    if "2" in reply_type or "3" in reply_type:
+        if "2" in reply_type:
+            # 回复评论
+            print("模式二：回复评论")
 
-        loop_comment(driver, id_list=[], reply_text=reply_text)
+        if "3" in reply_type:
+            # 回复评论的评论
+            print("模式三：回复评论的评论")
+
+        scroll_comment(driver, reply_type=reply_type, reply_text=reply_text, id_list=[])
 
 
 def main():
@@ -311,14 +420,12 @@ def main():
         driver = webdriver.Chrome(service=service, options=chrome_options)
 
         is_login_success = login(driver, username, password)
-        if (is_login_success == False):
+        if is_login_success == False:
             return
 
         # login_with_cookie(driver)
 
-
-        comment(driver, reply_link=test_link, reply_type=2, reply_text=test_reply)
-
+        comment(driver, reply_link=test_link, reply_type="123", reply_text=test_reply)
 
     finally:
         print("运行结束")
