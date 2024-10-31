@@ -360,14 +360,30 @@ def reply_comments_of_comment(driver, reply_text="hhh"):
             except Exception as e:
                 pass
 
-# 1为自己发布评论，2为回复评论，3为回复评论的评论
-def comment(driver, reply_link="", reply_type="1", reply_text="lol"):
+
+def open_detail(driver, reply_link="", count=5):
     print("打开视频链接")
     driver.get(reply_link)
 
-    WebDriverWait(driver, 300).until(
-        EC.presence_of_element_located((By.ID, "header-more-menu-icon"))
-    )
+    try:
+        WebDriverWait(driver, 120).until(
+            EC.presence_of_element_located((By.ID, "header-more-menu-icon"))
+        )
+        return True
+    except Exception as e:
+        count = count - 1
+        if count > 0:
+            return open_detail(driver, reply_link=reply_link, count=count)
+        else:
+            print("打开视频链接失败")
+            return False
+
+
+# 1为自己发布评论，2为回复评论，3为回复评论的评论
+def comment(driver, reply_link="", reply_type="1", reply_text="lol"):
+    bol = open_detail(driver, reply_link=reply_link, count=5)
+    if bol == False:
+        return
 
     if "1" in reply_type:
         # 直接回复
