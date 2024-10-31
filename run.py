@@ -118,7 +118,7 @@ def login(driver, username=None, password=None):
         print("登录验证中...")
         WebDriverWait(driver, 3600).until(
             EC.presence_of_element_located(
-                (By.CSS_SELECTOR, "#app-header div#header-more-menu-icon")
+                (By.XPATH, ".//dev[@data-e2e='upload-icon']")
             )
         )
         print("登录成功")
@@ -367,7 +367,7 @@ def open_detail(driver, reply_link="", count=5):
 
     try:
         WebDriverWait(driver, 120).until(
-            EC.presence_of_element_located((By.ID, "header-more-menu-icon"))
+            EC.presence_of_element_located((By.XPATH, ".//dev[@data-e2e='upload-icon']"))
         )
         return True
     except Exception as e:
@@ -380,11 +380,7 @@ def open_detail(driver, reply_link="", count=5):
 
 
 # 1为自己发布评论，2为回复评论，3为回复评论的评论
-def comment(driver, reply_link="", reply_type="1", reply_text="lol"):
-    bol = open_detail(driver, reply_link=reply_link, count=5)
-    if bol == False:
-        return
-
+def comment(driver, reply_type="1", reply_text="lol"):
     if "1" in reply_type:
         # 直接回复
         print("模式一：直接回复")
@@ -441,7 +437,11 @@ def main():
 
         # login_with_cookie(driver)
 
-        comment(driver, reply_link=test_link, reply_type="123", reply_text=test_reply)
+        is_open_success = open_detail(driver, reply_link=test_link, count=5)
+        if is_open_success == False:
+            return
+
+        comment(driver, reply_type="123", reply_text=test_reply)
 
     finally:
         print("运行结束")
