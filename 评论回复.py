@@ -132,6 +132,7 @@ def login(driver, username=None, password=None):
 def login_with_cookie(driver):
     driver.get("https://www.tiktok.com/explore")
 
+    print("cookie登录")
     driver.add_cookie(
         {
             "domain": ".tiktok.com",
