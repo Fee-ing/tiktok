@@ -24,7 +24,7 @@ user_session = '{"uid":"7405946633051522091","lastUpdated":"1731290493517"}'    
 
 
 user_avatar = "/Users/BGZB002/Downloads/images.jpg"  # 头像
-user_nickname = "Be Yourself"  # 姓名
+user_nickname = "Be Yourself"  # 昵称
 user_desc = "be rich"  # 描述
 
 time_interval = 1  # 间隔时间，单位分钟
@@ -188,16 +188,19 @@ def update_user_info(driver, avatar="", nickname="", desc=""):
 
     _sleep(5, 10)
 
-    print("输入姓名")
     name_input_wrapper = driver.find_element(
         By.XPATH, ".//div[@data-e2e='edit-profile-name-input']"
     )
-    name_input = name_input_wrapper.find_element(By.TAG_NAME, "input")
-    name_input.clear()
-    sleep(1)
-    name_input.send_keys(nickname)
+    try:
+        name_input = name_input_wrapper.find_element(By.TAG_NAME, "input")
+        print("输入昵称")
+        name_input.clear()
+        sleep(1)
+        name_input.send_keys(nickname)
 
-    _sleep(5, 10)
+        _sleep(5, 10)
+    except NoSuchElementException:
+            pass
 
     print("输入个人介绍")
     desc_input = driver.find_element(
@@ -335,7 +338,7 @@ def main():
 
         login_with_cookie(driver)
 
-        # update_user_info(driver, avatar=user_avatar, name=user_nickname, desc=user_desc)
+        update_user_info(driver, avatar=user_avatar, nickname=user_nickname, desc=user_desc)
 
         for item in post_list:
             post_video(driver, file=item["file"], desc=item["desc"])
