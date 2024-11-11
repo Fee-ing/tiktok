@@ -140,13 +140,6 @@ def login_with_cookie(driver):
         }
     )
     driver.add_cookie(
-        {
-            "domain": ".www.tiktok.com",
-            "name": "tiktok_webapp_theme_source",
-            "value": "auto",
-        }
-    )
-    driver.add_cookie(
         {"domain": ".tiktok.com", "name": "tt-target-idc", "value": "useast5"}
     )
     driver.add_cookie(
@@ -427,7 +420,8 @@ def main():
         # proxy_server = 'http://127.0.0.1:7890'
         # chrome_options.add_argument(f'--proxy-server={proxy_server}')
         # 设置ChromeDriver的路径
-        service = Service(executable_path="/usr/local/bin/chromedriver")
+        # service = Service(executable_path="/usr/local/bin/chromedriver")
+        service = Service()
         # 创建WebDriver实例
         driver = webdriver.Chrome(service=service, options=chrome_options)
 
