@@ -9,16 +9,6 @@ base_url = "http://38.181.47.22"
 save_dir = "./download"  # 保存目录
 
 
-# 根据扩展名判断文件类型
-def is_image_or_video(ext):
-    if ext in [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"]:
-        return True, False
-    elif ext in [".mp4", ".avi", ".mov", ".mkv", ".flv", ".wmv", ".mpg", ".mpeg"]:
-        return False, True
-    else:
-        return False, False
-
-
 # 下载文件
 def download_file(url):
     try:
@@ -37,11 +27,10 @@ def download_file(url):
             if not extension:
                 raise ValueError("无法确定文件的扩展名")
 
-            is_image, is_video = is_image_or_video(extension)
             file_name = "file_"
-            if is_image:
+            if extension in [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"]:
                 file_name = "image_"
-            elif is_video:
+            elif extension in [".mp4", ".avi", ".mov", ".mkv", ".flv", ".wmv", ".mpg", ".mpeg"]:
                 file_name = "video_"
             file_name = f"{file_name}{str(int(time.time()))}{extension}"
 
@@ -95,7 +84,7 @@ def download_file(url):
 # get_info()
 
 local_path = download_file(
-    "https://v.hoopchina.com.cn/hupuapp/bbs/385/56570385/thread__56570385_20241112095150_29619_wz_transcode.mp4?auth_key=1731412672-2-0-fb46beca7c3d3bb30ecb58c3add2be60"
+    "https://common-1251623262.cos.ap-guangzhou.myqcloud.com/1.MOV"
 )
 if local_path:
     print(f"文件已下载到: {local_path}")
