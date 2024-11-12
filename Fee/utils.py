@@ -164,3 +164,19 @@ def login_with_cookie(
         )
 
         _sleep(5, 10)
+
+
+def get_needed_cookie(driver):
+    cookie_session_id = driver.get_cookie("sessionid")
+    cookie_sign = driver.get_cookie("tt-target-idc-sign")
+    user_session = driver.execute_script(
+        """
+        return window.sessionStorage.getItem("user_session");
+    """
+    )
+
+    return {
+        "cookie_session_id": cookie_session_id,
+        "cookie_sign": cookie_sign,
+        "user_session": user_session,
+    }
