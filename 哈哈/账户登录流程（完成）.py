@@ -46,7 +46,6 @@ def check_login(driver):
             print(f'{i}未登录')  # 继续循环等待
             time.sleep(1)
         i = i + 1
-
     print('登录成功')
     return
 
