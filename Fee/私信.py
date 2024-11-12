@@ -23,10 +23,10 @@ test_reply = "I can watch it all day!"
 
 comment_keywords = ["panda", "cute", "Kung Fu", "kungfu"]
 
-# username = "user7399076925301"
-# password = "@K4axNj6w@qo"
-username = "user5302058888804"
-password = "@K4aEsi@D5wZ"
+username = "user7399076925301"
+password = "@K4axNj6w@qo"
+# username = "user5302058888804"
+# password = "@K4aEsi@D5wZ"
 
 cookie_session_id = "ac8153a7115b54e56a9e8e2e425fe21b"  # cookie中的sessionid
 # cookie中的tt-target-idc-sign
@@ -42,24 +42,8 @@ def is_comment_have_keywords(text):
     return False
 
 
-# 获取点击回复后的输入框节点
-def get_reply_input(driver):
-    list = WebDriverWait(driver, 60).until(
-        EC.presence_of_all_elements_located(
-            (
-                By.XPATH,
-                ".//div[@contenteditable='true']",
-            )
-        )
-    )
-    if len(list) > 1:
-        return list[1]
-    else:
-        return get_reply_input(driver)
-
-
 # 滚动加载评论
-def scroll_comment(driver, reply_type="2", reply_text="hhh", id_list=[]):
+def scroll_comment(driver, reply_type="1", reply_text="hello", id_list=[]):
     _sleep(30, 60)
 
     comment_list = get_nodes_by_classname(driver, "div", "DivCommentObjectWrapper")
@@ -83,7 +67,7 @@ def scroll_comment(driver, reply_type="2", reply_text="hhh", id_list=[]):
         if (comment_id in id_list) == False and (username in comment_id) == False:
             id_list.append(comment_id)
 
-            if "2" in reply_type:
+            if "1" in reply_type:
                 try:
                     p_elem = comment_item.find_element(
                         By.XPATH, ".//span[@data-e2e='comment-level-1']"
@@ -92,32 +76,7 @@ def scroll_comment(driver, reply_type="2", reply_text="hhh", id_list=[]):
                     # 判断评论中是否包含关键词
                     bol = is_comment_have_keywords(text)
                     if bol == True:
-                        # 点击回复
-                        print("点击回复")
-                        reply_btn = comment_item.find_element(
-                            By.XPATH, ".//span[@data-e2e='comment-reply-1']"
-                        )
-                        reply_btn.click()
-
-                        _sleep(5, 10)
-
-                        # 输入文本
-                        print(f"输入评论内容：{reply_text}")
-                        comment_input = comment_item.find_element(
-                            By.XPATH, ".//div[@contenteditable='true']"
-                        )
-                        comment_input.send_keys(reply_text)
-
-                        _sleep(5, 10)
-
-                        # 发布回复
-                        print("发布回复")
-                        comment_submit = comment_item.find_element(
-                            By.XPATH, ".//div[@data-e2e='comment-post']"
-                        )
-                        comment_submit.click()
-
-                        _sleep(10, 20)
+                        send_message(driver, id=comment_id)
 
                 except Exception as e:
                     pass
@@ -177,7 +136,7 @@ def expand_comments_of_comment(driver, num=0):
     expand_comments_of_comment(driver, num=num)
 
 
-# 回复评论的评论
+# 评论的回复私信
 def reply_comments_of_comment(driver, reply_text="hhh"):
     list = get_nodes_by_classname(driver, "div", "DivReplyContainer")
 
@@ -206,69 +165,84 @@ def reply_comments_of_comment(driver, reply_text="hhh"):
                 # 判断评论中是否包含关键词
                 bol = is_comment_have_keywords(text)
                 if bol == True:
-                    # 点击回复
-                    print("点击回复")
-                    reply_btn = comment_item.find_element(
-                        By.XPATH, ".//span[@data-e2e='comment-reply-2']"
-                    )
-                    reply_btn.click()
-
-                    _sleep(5, 10)
-
-                    # 输入文本
-                    print(f"输入评论内容：{reply_text}")
-                    comment_input = reply_container.find_element(
-                        By.XPATH, ".//div[@contenteditable='true']"
-                    )
-                    comment_input.send_keys(reply_text)
-
-                    _sleep(5, 10)
-
-                    # 发布回复
-                    print("发布回复")
-                    comment_submit = reply_container.find_element(
-                        By.XPATH, ".//div[@data-e2e='comment-post']"
-                    )
-                    comment_submit.click()
-
-                    _sleep(10, 20)
+                    send_message(driver, id=comment_id, reply_text=reply_text)
 
             except Exception as e:
                 pass
 
 
-# 1为自己发布评论，2为回复评论，3为回复评论的评论
-def comment(driver, reply_type="1", reply_text="lol"):
-    if "1" in reply_type:
-        # 直接回复
-        print("模式一：直接回复")
+# 发送私信
+def send_message(driver, id="", reply_text="hello"):
+    print(f"打开用户{id}的主页")
 
+    # 获取当前窗口句柄（这是打开的第一个窗口）
+    main_window = driver.current_window_handle
+
+    # 使用 JavaScript 打开新窗口
+    driver.execute_script("window.open('');")
+
+    # 切换到新打开的窗口
+    # 首先获取所有窗口句柄
+    all_windows = driver.window_handles
+    # 从所有窗口中排除主窗口，得到新窗口的句柄
+    new_window = [window for window in all_windows if window != main_window][0]
+    # 切换到新窗口
+    driver.switch_to.window(new_window)
+
+    # 在新窗口中打开另一个网址
+    is_open_success = open_page(
+        driver,
+        url="https://www.tiktok.com/" + id,
+        keys=".//button[@data-e2e='message-button']",
+    )
+    if is_open_success == False:
+        return
+
+    try:
         _sleep(5, 10)
 
-        # 输入评论
-        print(f"输入评论内容：{reply_text}")
-        comment_input = driver.find_element(By.XPATH, ".//div[@contenteditable='true']")
-        comment_input.send_keys(reply_text)
-
-        _sleep(5, 10)
-
-        # 提交评论
-        print("发布评论")
-        comment_submit = driver.find_element(
-            By.XPATH, ".//div[@data-e2e='comment-post']"
+        print("点击发消息")
+        message_btn = driver.find_element(
+            By.XPATH, ".//button[@data-e2e='message-button']"
         )
-        comment_submit.click()
+        message_btn.click()
 
         _sleep(5, 10)
 
-    if "2" in reply_type or "3" in reply_type:
-        if "2" in reply_type:
-            # 回复评论
-            print("模式二：回复评论")
+        print("输入私信内容")
+        input_element = driver.find_element(By.XPATH, ".//div[@contenteditable='true']")
+        input_element.send_keys(reply_text)
 
-        if "3" in reply_type:
-            # 回复评论的评论
-            print("模式三：回复评论的评论")
+        _sleep(5, 10)
+
+        # print("发送私信")
+        # send_btn = driver.find_element(By.XPATH, ".//svg[@data-e2e='message-send']")
+        # send_btn.click()
+
+        # _sleep(5, 10)
+
+    except Exception as e:
+        print(f"打开用户{id}的主页失败")
+
+    # 关闭新窗口
+    driver.close()
+
+    # 切换回原始窗口
+    driver.switch_to.window(main_window)
+
+    _sleep(30, 60)
+
+
+# 1为评论，2为评论的评论
+def message(driver, reply_type="1", reply_text="lol"):
+    if "1" in reply_type or "2" in reply_type:
+        if "1" in reply_type:
+            # 评论列表私信
+            print("模式一：评论列表私信")
+
+        if "2" in reply_type:
+            # 评论的回复私信
+            print("模式二：评论的回复私信")
 
         scroll_comment(driver, reply_type=reply_type, reply_text=reply_text, id_list=[])
 
@@ -285,16 +259,21 @@ def main():
         # proxy_server = 'http://127.0.0.1:7890'
         # chrome_options.add_argument(f'--proxy-server={proxy_server}')
         # 设置ChromeDriver的路径
-        # service = Service(executable_path="/usr/local/bin/chromedriver")
-        service = Service()
+        service = Service(executable_path="/usr/local/bin/chromedriver")
+        # service = Service()
         # 创建WebDriver实例
         driver = webdriver.Chrome(service=service, options=chrome_options)
 
-        is_login_success = login(driver, username, password)
-        if is_login_success == False:
-            return
+        # is_login_success = login(driver, username, password)
+        # if is_login_success == False:
+        #     return
 
-        # login_with_cookie(driver, cookie_session_id=cookie_session_id, cookie_sign=cookie_sign, user_session=user_session)
+        login_with_cookie(
+            driver,
+            cookie_session_id=cookie_session_id,
+            cookie_sign=cookie_sign,
+            user_session=user_session,
+        )
 
         print("打开视频链接")
         is_open_success = open_page(
@@ -303,7 +282,7 @@ def main():
         if is_open_success == False:
             return
 
-        comment(driver, reply_type="123", reply_text=test_reply)
+        message(driver, reply_type="1", reply_text=test_reply)
 
     finally:
         print("运行结束")
