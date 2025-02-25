@@ -23,15 +23,13 @@ test_reply = "I can watch it all day!"
 
 comment_keywords = ["panda", "cute", "Kung Fu", "kungfu"]
 
-username = "user7399076925301"
-password = "@K4axNj6w@qo"
-# username = "user5302058888804"
-# password = "@K4aEsi@D5wZ"
+username = ""
+password = ""
 
-cookie_session_id = "ac8153a7115b54e56a9e8e2e425fe21b"  # cookie中的sessionid
+cookie_session_id = ""  # cookie中的sessionid
 # cookie中的tt-target-idc-sign
-cookie_sign = "BMOcfZyB9BpOozH-hphKBvR9CYESJNS9EEGu5--qVB1MLx9ZciphYOvuaStTQLrASWtWNW8uIBA5t98D_sDuy3GlmndcFiAxxXv3Bv9ZDrGvkVW9k_N3NKC9eFaq8aA_EuKpLnFRy0EZ2CA9WbVtNXbfBSsyN5JaJTkUkOWHh8fAT0tIDAk6wqe8RXuydCN5SvgivFaabYkzr-MLKI7hQMykySEtY0HoodWv5dKPQzghA21B3NkF8-Te-iC-t3RDnrYwezDSaq7crwRiiRsacrDk1teuQUeYapMxJG4Q_69UeW_-Us6BhCAvDEp6ISearFHAN7HxQffl5gZZd6BwN46j_DhU-53DSEShOD-9OuJ0wqU9n91j65hbSU0Gs9HMVItWBEO89lGPyt2jI3RZ6SfArSBmvYZyYWCjvEhxq7Z6SH66QwwmWFhWGMhWbKgdW5tyMNA0Mca9FQggTdfQsej8ehlsdKQdnv1EdGYbCYQ5jy7_AYn3J_AhBywSO_kA"
-user_session = '{"uid":"7405946633051522091","lastUpdated":"1731290493517"}'  # session中的user_session
+cookie_sign = ""
+user_session = '{"uid":"","lastUpdated":""}'  # session中的user_session
 
 
 # 判断评论中是否有关键词

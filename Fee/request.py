@@ -3,7 +3,7 @@ import os
 import time
 import mimetypes
 
-base_url = "http://38.181.47.22"
+base_url = ""
 
 # 保存路径
 save_dir = "./download"  # 保存目录
